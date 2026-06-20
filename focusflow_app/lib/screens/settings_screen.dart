@@ -4,6 +4,7 @@ import '../providers/settings_provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_button.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -158,7 +159,11 @@ class SettingsScreen extends StatelessWidget {
               if (confirm == true) {
                 auth.logout();
                 if (context.mounted) {
-                  Navigator.pop(context); // Close settings screen
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false,
+                  );
                 }
               }
             },

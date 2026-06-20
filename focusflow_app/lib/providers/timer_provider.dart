@@ -25,6 +25,7 @@ class TimerProvider with ChangeNotifier {
   bool get isBreak => _isBreak;
   Task? get currentTask => _currentTask;
   bool get needsFeedback => _needsFeedback;
+  bool get hasStarted => _sessionStartTime != null;
 
   void setCurrentTask(Task? task) {
     _currentTask = task;
@@ -33,7 +34,7 @@ class TimerProvider with ChangeNotifier {
 
   /// Called to sync remaining seconds with settings when not running
   void syncWithSettings(int workMinutes, int breakMinutes) {
-    if (!_isRunning) {
+    if (!_isRunning && _sessionStartTime == null) {
       _remainingSeconds = _isBreak ? breakMinutes * 60 : workMinutes * 60;
       notifyListeners();
     }
@@ -61,9 +62,28 @@ class TimerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void pauseTimer() {
+  void pauseTimer(int pDuration, int bDuration) {
     _timer?.cancel();
     _isRunning = false;
+    
+    if (!_isBreak && _sessionStartTime != null) {
+      final endTime = DateTime.now();
+      final durationMs = endTime.difference(_sessionStartTime!).inMilliseconds;
+      final start = _sessionStartTime!;
+      final taskId = _currentTask?.id;
+      
+      _remainingSeconds = pDuration * 60;
+      _sessionStartTime = null;
+      
+      // Enregistrement en arrière-plan pour ne pas bloquer l'UI
+      _apiService.createSession(
+        durationMs, 
+        start, 
+        endTime, 
+        taskId: taskId,
+        status: 'failed',
+      );
+    }
     notifyListeners();
   }
 
@@ -71,7 +91,6 @@ class TimerProvider with ChangeNotifier {
     _timer?.cancel();
     _isRunning = false;
     _remainingSeconds = _isBreak ? bDuration * 60 : pDuration * 60;
-    _sessionStartTime = null;
     _sessionStartTime = null;
     notifyListeners();
   }
@@ -130,6 +149,10 @@ class TimerProvider with ChangeNotifier {
       taskId: _currentTask?.id,
       status: status,
     );
+
+    if (status == 'completed') {
+      _currentTask = null;
+    }
 
     _needsFeedback = false;
     _pendingSessionStartTime = null;

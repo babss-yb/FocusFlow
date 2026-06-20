@@ -141,10 +141,31 @@ class TimerScreen extends StatelessWidget {
                           
                           // Play / Pause
                           GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               HapticFeedback.mediumImpact();
                               if (timer.isRunning) {
-                                timer.pauseTimer();
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                                    title: const Text('Mettre en pause ?'),
+                                    content: const Text('Toute pause entraîne l\'échec du Pomodoro en cours.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx, false),
+                                        child: const Text('Annuler', style: TextStyle(color: AppTheme.textSecondaryLight)),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error, foregroundColor: Colors.white, elevation: 0),
+                                        child: const Text('Mettre en pause'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  timer.pauseTimer(pDuration, bDuration);
+                                }
                               } else {
                                 timer.startTimer(pDuration, bDuration);
                               }
@@ -180,14 +201,35 @@ class TimerScreen extends StatelessWidget {
                           const SizedBox(width: 24),
                           
                           // Finish early
-                          if (timer.isRunning)
+                          if (timer.hasStarted)
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     HapticFeedback.lightImpact();
-                                    timer.finishEarly(pDuration, bDuration);
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                                        title: const Text('Terminer en avance ?'),
+                                        content: const Text('Voulez-vous vraiment clôturer cette session de travail maintenant ?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(ctx, false),
+                                            child: const Text('Annuler', style: TextStyle(color: AppTheme.textSecondaryLight)),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () => Navigator.pop(ctx, true),
+                                            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success, foregroundColor: Colors.white, elevation: 0),
+                                            child: const Text('Terminer'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      timer.finishEarly(pDuration, bDuration);
+                                    }
                                   },
                                   icon: const Icon(Icons.task_alt_rounded),
                                   color: Colors.green.withOpacity(0.8),

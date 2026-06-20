@@ -43,7 +43,7 @@ class _StatsScreenState extends State<StatsScreen> {
           final sessions = snapshot.data!;
           final Map<int, int> weeklyStats = _calculateWeeklyStats(sessions);
           
-          final totalFocusTime = sessions.fold<int>(0, (sum, item) => sum + item.durationMs) ~/ 60000;
+          final totalFocusTime = sessions.where((s) => s.status == 'completed').fold<int>(0, (sum, item) => sum + item.durationMs) ~/ 60000;
           final totalSessions = sessions.length;
           
           return SingleChildScrollView(
@@ -69,7 +69,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         title: 'Taux de succès',
                         value: totalSessions == 0 
                             ? '0%' 
-                            : '\${((sessions.where((s) => s.status == "completed").length / totalSessions) * 100).toStringAsFixed(0)}%',
+                            : '${((sessions.where((s) => s.status == "completed").length / totalSessions) * 100).toStringAsFixed(0)}%',
                         icon: Icons.check_circle_outline,
                         color: AppTheme.success,
                         useGradient: false,
@@ -127,7 +127,7 @@ class _StatsScreenState extends State<StatsScreen> {
     final sevenDaysAgo = now.subtract(const Duration(days: 7));
 
     for (var session in sessions) {
-      if (session.endTime.isAfter(sevenDaysAgo)) {
+      if (session.endTime.isAfter(sevenDaysAgo) && session.status == 'completed') {
         final weekday = session.endTime.weekday;
         final minutes = (session.durationMs / 60000).round();
         stats[weekday] = (stats[weekday] ?? 0) + minutes;
@@ -197,7 +197,7 @@ class _StatsScreenState extends State<StatsScreen> {
               reservedSize: 40,
               getTitlesWidget: (value, meta) {
                 return Text(
-                  '\${value.toInt()}m',
+                  '${value.toInt()}m',
                   style: TextStyle(
                     color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 12,
@@ -280,9 +280,46 @@ class _StatsScreenState extends State<StatsScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  dateFormatted,
-                  style: Theme.of(context).textTheme.bodySmall,
+                Row(
+                  children: [
+                    Text(
+                      dateFormatted,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(width: 8),
+                    if (session.status == 'failed')
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.error.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Échec',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.success.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Terminé',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.success,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

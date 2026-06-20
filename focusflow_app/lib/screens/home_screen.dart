@@ -22,8 +22,8 @@ class HomeScreen extends StatelessWidget {
         ? 'Bonjour, ${auth.userName} 👋'
         : 'Bonjour 👋';
 
-    // Get 3 most recent pending tasks
-    final recentTasks = taskProvider.pendingTasks.take(3).toList();
+    // Get 3 most recent tasks (both pending and completed)
+    final recentTasks = taskProvider.tasks.take(3).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -193,12 +193,19 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.circle_outlined, color: AppTheme.primaryColor, size: 24),
+                    Icon(
+                      task.isCompleted ? Icons.check_circle : Icons.circle_outlined, 
+                      color: task.isCompleted ? AppTheme.success : AppTheme.primaryColor, 
+                      size: 24,
+                    ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         task.title,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                          color: task.isCompleted ? Theme.of(context).textTheme.bodySmall?.color : null,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

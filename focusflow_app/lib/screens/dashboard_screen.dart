@@ -37,10 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: _screens[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,

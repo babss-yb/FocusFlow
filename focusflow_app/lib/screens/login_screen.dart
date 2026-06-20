@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_button.dart';
 import 'register_screen.dart';
+import 'dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -75,7 +76,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (error != null) {
         _showErrorSnackbar(error);
       } else {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          (route) => false,
+        );
       }
     }
   }

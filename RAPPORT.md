@@ -1,5 +1,12 @@
 # Rapport de Développement : FocusFlow
 
+**Membres du groupe (Classe : L3GLSIA) :**
+- El Hadj Boubacar Mamadou Demba Bathily
+- Kadiatou Sadio Diallo
+- Serigne Saliou Mbacké Niang
+- Mamadou Diabou Gning
+- Ndeye Gueye
+
 ## 1. Présentation du Projet
 **FocusFlow** est une application mobile et web de productivité axée sur la méthode Pomodoro. Conçue pour aider les utilisateurs à maintenir leur concentration, elle combine un minuteur de sessions de travail (Focus) et de pauses, tout en y associant un gestionnaire de tâches (To-Do List). 
 
