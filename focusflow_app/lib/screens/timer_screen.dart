@@ -66,14 +66,14 @@ class TimerScreen extends StatelessWidget {
                       _buildFeedbackCard(context, timer, taskProvider)
                     else ...[
                       // Circular Timer
-                      CircularTimer(
-                        progress: 1.0 - progress, // Arc grows as time passes
-                        timeFormatted: timer.timeFormatted,
-                        phase: phase,
-                        size: 300,
-                      ),
-                      
-                      if (!timer.isRunning && !timer.isBreak) ...[
+                    CircularTimer(
+                      progress: 1.0 - progress, // Arc grows as time passes
+                      timeFormatted: timer.timeFormatted,
+                      phase: phase,
+                      size: 300,
+                    ),
+                    
+                    if (!timer.isRunning && !timer.isBreak) ...[
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -291,52 +291,6 @@ class TimerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskLink(BuildContext context, TimerProvider timer, TaskProvider taskProvider, bool isDark) {
-    final currentTask = timer.currentTask;
-
-    return GestureDetector(
-      onTap: () {
-        if (timer.isRunning || timer.needsFeedback) return;
-        _showTaskSelector(context, timer, taskProvider);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? AppTheme.surface2Dark : AppTheme.surface2Light,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              currentTask != null ? Icons.task_alt : Icons.assignment_outlined,
-              color: currentTask != null ? AppTheme.primaryColor : Theme.of(context).iconTheme.color?.withOpacity(0.5),
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                currentTask?.title ?? 'Lier une tâche',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: currentTask != null ? null : Theme.of(context).textTheme.bodySmall?.color,
-                    ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (!timer.isRunning) ...[
-              const SizedBox(width: 12),
-              Icon(Icons.keyboard_arrow_down, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-            ]
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showTaskSelector(BuildContext context, TimerProvider timer, TaskProvider taskProvider) {
     showModalBottomSheet(
       context: context,
@@ -477,7 +431,6 @@ class TimerScreen extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Mark the task as completed globally
                     if (timer.currentTask != null) {
                       taskProvider.toggleTaskStatus(timer.currentTask!.id, false);
                     }
@@ -496,6 +449,53 @@ class TimerScreen extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTaskLink(BuildContext context, TimerProvider timer, TaskProvider taskProvider, bool isDark) {
+    final currentTask = timer.currentTask;
+
+    return GestureDetector(
+      onTap: () {
+        if (timer.isRunning || timer.needsFeedback) return;
+        _showTaskSelector(context, timer, taskProvider);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: currentTask != null ? AppTheme.primaryColor : (isDark ? AppTheme.surface2Dark : AppTheme.surface2Light),
+            width: currentTask != null ? 2 : 1,
+          ),
+          boxShadow: currentTask != null ? [
+            BoxShadow(
+              color: AppTheme.primaryColor.withOpacity(0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            )
+          ] : [],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              currentTask != null ? Icons.assignment : Icons.add_task,
+              color: currentTask != null ? AppTheme.primaryColor : Theme.of(context).iconTheme.color?.withOpacity(0.5),
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              currentTask?.title ?? 'Lier une tâche',
+              style: TextStyle(
+                fontWeight: currentTask != null ? FontWeight.bold : FontWeight.w500,
+                color: currentTask != null ? AppTheme.primaryColor : Theme.of(context).textTheme.bodyMedium?.color,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
